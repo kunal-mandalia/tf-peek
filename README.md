@@ -6,7 +6,7 @@ TensorFlow.js model weights are opaque by default — you can train, save, and l
 
 `tf-peek` surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON or markdown.
 
-## Discuss your DNN
+## Reason about your model
 
 Reason about your deep neural network (dnn) with a coding agent:
 
