@@ -43,6 +43,15 @@ function computeStats(values: number[], dp: number): WeightStats {
     }
 }
 
+export type ModelInfo = {
+    name: string,
+    totalParams: number,
+    inputShape: (number | null)[],
+    outputShape: (number | null)[],
+    trainableWeights: number,
+    nonTrainableWeights: number,
+}
+
 export type LayerData = {
     name: string,
     config: tf.serialization.ConfigDict,
@@ -50,7 +59,12 @@ export type LayerData = {
     bias: { shape: number[], values: number[], stats: WeightStats },
 }
 
-function extractLayers(model: tf.LayersModel): LayerData[] {
+export type ModelData = {
+    model: ModelInfo,
+    layers: LayerData[],
+}
+
+function extractModel(model: tf.LayersModel): ModelData {
     const layers: LayerData[] = []
 
     model.layers.forEach((layer) => {
@@ -78,19 +92,26 @@ function extractLayers(model: tf.LayersModel): LayerData[] {
             },
         })
     })
-    return layers
+
+    return {
+        model: {
+            name: model.name,
+            totalParams: model.countParams(),
+            inputShape: model.inputs[0].shape,
+            outputShape: model.outputs[0].shape,
+            trainableWeights: model.trainableWeights.length,
+            nonTrainableWeights: model.nonTrainableWeights.length,
+        },
+        layers,
+    }
 }
 
-function printLayers(layers: LayerData[]) {
-    console.log(JSON.stringify(layers, null, 2))
-}
-
-export async function peekLayers(modelPath: string): Promise<LayerData[]> {
+export async function peekLayers(modelPath: string): Promise<ModelData> {
     const model = await loadModel(modelPath)
-    return extractLayers(model)
+    return extractModel(model)
 }
 
 export async function toStdOut(modelPath: string) {
-    const layers = await peekLayers(modelPath)
-    printLayers(layers)
+    const data = await peekLayers(modelPath)
+    console.log(JSON.stringify(data, null, 2))
 }
