@@ -2,7 +2,9 @@
 
 ![tf-peek reveals hidden layers](logo.png)
 
-Inspect TensorFlow.js model architecture and weights. Surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON.
+TensorFlow.js model weights are opaque by default — you can train, save, and load them without ever seeing what they actually learned. For small models, inspecting the raw weights and biases can reveal skewed priors, dead neurons, and regularisation gaps that aggregate metrics like loss and accuracy miss entirely.
+
+`tf-peek` surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON or markdown.
 
 ## Discuss your DNN
 
