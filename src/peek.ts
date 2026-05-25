@@ -1,8 +1,40 @@
-import tf, { loadLayersModel } from "@tensorflow/tfjs-node"
+import tf, { loadLayersModel } from "@tensorflow/tfjs"
+import { readFileSync } from "fs"
+import { dirname, resolve } from "path"
+
+function fileIOHandler(modelPath: string): tf.io.IOHandler {
+    const filePath = modelPath.replace(/^file:\/\//, '')
+    const modelDir = dirname(filePath)
+    return {
+        load: async (): Promise<tf.io.ModelArtifacts> => {
+            const modelJson = JSON.parse(readFileSync(filePath, 'utf8'))
+            const weightBuffers: Buffer[] = modelJson.weightsManifest.flatMap(
+                (group: { paths: string[] }) => group.paths.map(
+                    (p: string) => readFileSync(resolve(modelDir, p))
+                )
+            )
+            const weightData = Buffer.concat(weightBuffers)
+            return {
+                modelTopology: modelJson.modelTopology,
+                weightSpecs: modelJson.weightsManifest.flatMap(
+                    (g: { weights: tf.io.WeightsManifestEntry[] }) => g.weights
+                ),
+                weightData: weightData.buffer.slice(
+                    weightData.byteOffset,
+                    weightData.byteOffset + weightData.byteLength
+                ),
+                format: modelJson.format,
+                generatedBy: modelJson.generatedBy,
+                convertedBy: modelJson.convertedBy,
+            }
+        }
+    }
+}
 
 async function loadModel(modelPath: string) {
+    tf.env().set('IS_NODE', false)
     await tf.ready()
-    return loadLayersModel(modelPath)
+    return loadLayersModel(fileIOHandler(modelPath))
 }
 
 function precision1D(row: number[], dp: number) {
