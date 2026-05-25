@@ -4,28 +4,34 @@
 
 Inspect TensorFlow.js model architecture and weights. Surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON.
 
-## Deep Neural Network context
+## Discuss your DNN
 
-Run `tf-peek` against your model and share the output with your code agent to get architectural analysis, flag dead neurons, spot regularisation gaps, and more.
+Reason about your deep neural network (dnn) with a coding agent:
 
-```bash
-npx tf-peek -modelPath=./path/to/model.json
-```
+> *"I think there's something wrong with my output layer, take a look"*
 
-**Claude Code** — add the skill so Claude can run it automatically:
+> Here's the output layer (`dense_Dense3`) bias:
+> ```
+> [ 0.01, -0.21,  0.23 ]
+>   Home   Draw   Away
+> ```
+> | Class    | Bias  | Effect     |
+> |----------|-------|------------|
+> | Home Win | +0.01 | Neutral    |
+> | Draw     | −0.21 | Suppressed |
+> | Away Win | +0.23 | Boosted    |
+>
+> The model has learned a skewed prior. Applying softmax to just the biases gives an implicit baseline of ~33% Home / ~26% Draw / ~41% Away — away wins are over-represented relative to real-world frequencies (~30%), and draws are under-represented. The `std` of 0.18 across only 3 values confirms the bias is doing real work, not sitting near zero. Worth investigating if the model is miscalibrated on draws.
 
-```
-Copy .claude/skills/tf-peek/ into your project's .claude/skills/ directory, then ask:
-"Help me understand and flag potential issues in my model architecture"
-```
+---
 
-Things an assistant can surface from the output:
+## Getting started
 
-- Layer shapes, activation functions, and regularisation config
-- Weight magnitude and distribution per layer (`std`, `min`, `max`)
-- Dead or near-zero weight rows (`sparsity`)
-- Regularisation gaps (e.g. output layer missing L2)
-- Bottleneck pressure (output layer compensating for weak hidden representations)
+Copy `.claude/skills/tf-peek/` into your project's `.claude/skills/` directory, then ask Claude Code:
+
+> "Help me understand and flag potential issues in my model architecture"
+
+Claude will run `tf-peek` against your model and reason about the architecture, weights and biases.
 
 ---
 
