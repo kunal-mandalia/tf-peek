@@ -4,7 +4,7 @@
 
 Inspect TensorFlow.js model architecture and weights. Surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON.
 
-## Model context for code agent
+## Deep Neural Network context
 
 Run `tf-peek` against your model and share the output with your code agent to get architectural analysis, flag dead neurons, spot regularisation gaps, and more.
 
