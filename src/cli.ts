@@ -13,7 +13,7 @@ function parseArgs(argv: string[]): Record<string, string> {
 const { modelPath, values, format } = parseArgs(process.argv.slice(2));
 const options: import('./peek.js').PeekOptions = {
   ...(values === 'false' && { values: false }),
-  format: format === 'json' ? 'json' : 'markdown',
+  ...(format === 'markdown' && { format: 'markdown' }),
 };
 toStdOut(modelPath, options).catch((e: unknown) => {
   process.stderr.write(String(e) + '\n');

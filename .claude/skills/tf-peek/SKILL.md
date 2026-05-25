@@ -33,7 +33,7 @@ Default: `true`. Set to `false` to omit weight and bias arrays — stats are alw
 
 ### `-format`
 
-Default: `markdown`. Set to `json` for machine-readable output (e.g. piping to `jq`). Markdown is preferred when sharing output with a coding agent — it is much more token-efficient than JSON for large models.
+Default: `json`. Set to `markdown` for human-readable output or when sharing with a coding agent — it is much more token-efficient than JSON for large models.
 
 ### Example
 
