@@ -75,6 +75,27 @@ JSON object with top-level `model` info and a `layers` array:
 
 ---
 
+## Troubleshooting
+
+### `ENOVERSIONS` / No versions available
+
+If `~/.npmrc` contains `min-release-age=<days>`, npm will refuse to install packages published fewer than that many days ago. `tf-peek` itself may trigger this if it was recently published.
+
+Override for the command:
+
+```bash
+npm_config_min_release_age=0 npx tf-peek --modelPath=./models/classifier/model.json
+```
+
+Or add a shell alias so it always applies:
+
+```bash
+# ~/.zshrc
+alias tf-peek='npm_config_min_release_age=0 npx tf-peek'
+```
+
+---
+
 ## Module Usage
 
 ```typescript
