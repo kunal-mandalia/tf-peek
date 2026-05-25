@@ -37,6 +37,7 @@ npx tf-peek -modelPath=./path/to/model.json
 |------|---------|-------------|
 | `-modelPath` | — | Path to `model.json` (required) |
 | `-values` | `true` | Set to `false` to omit weight and bias arrays. Stats are always included. |
+| `-format` | `json` | Output format: `json` or `markdown` |
 
 Output:
 

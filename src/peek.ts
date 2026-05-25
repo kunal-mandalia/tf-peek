@@ -86,6 +86,7 @@ export type ModelInfo = {
 
 export type PeekOptions = {
     values?: boolean,
+    format?: 'json' | 'markdown',
 }
 
 export type LayerData = {
@@ -148,7 +149,70 @@ export async function peekLayers(modelPath: string, options: PeekOptions = {}): 
     return extractModel(model, options)
 }
 
+function markdownTable(rows: string[][]): string {
+    const widths = rows[0].map((_, c) => Math.max(...rows.map(r => r[c].length)))
+    const fmt = (row: string[]) => '| ' + row.map((cell, c) => cell.padEnd(widths[c])).join(' | ') + ' |'
+    const sep = '|' + widths.map(w => '-'.repeat(w + 2)).join('|') + '|'
+    const [header, ...body] = rows
+    return [fmt(header), sep, ...body.map(fmt)].join('\n')
+}
+
+function shape(s: (number | null)[]): string {
+    return '[' + s.map(v => v ?? 'null').join(', ') + ']'
+}
+
+function formatMarkdown(data: ModelData): string {
+    const { model, layers } = data
+    const lines: string[] = []
+
+    lines.push(`# ${model.name}`, '')
+    lines.push(markdownTable([
+        ['', ''],
+        ['Total params', String(model.totalParams)],
+        ['Input shape', shape(model.inputShape)],
+        ['Output shape', shape(model.outputShape)],
+        ['Trainable weights', String(model.trainableWeights)],
+        ['Non-trainable weights', String(model.nonTrainableWeights)],
+    ]), '')
+
+    for (const { name, config, weights, bias } of layers) {
+        lines.push(`## ${name}`, '')
+
+        const configStr = Object.entries(config)
+            .filter(([, v]) => v !== null && v !== undefined && typeof v !== 'object')
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ')
+        if (configStr) lines.push(configStr, '')
+
+        const s = (x: WeightStats) => [x.min, x.max, x.mean, x.std, x.sparsity].map(String)
+        lines.push(markdownTable([
+            ['', 'shape', 'min', 'max', 'mean', 'std', 'sparsity'],
+            ['weights', shape(weights.shape), ...s(weights.stats)],
+            ['bias',    shape(bias.shape),    ...s(bias.stats)],
+        ]))
+
+        if (weights.values !== null) {
+            const strs = weights.values.map(row => row.map(String))
+            const colW = strs[0].map((_, c) => Math.max(...strs.map(r => r[c].length)))
+            const rows = strs.map(row => '[' + row.map((v, c) => v.padStart(colW[c])).join(', ') + ']')
+            lines.push('', '**weights**', '```', ...rows, '```')
+        }
+        if (bias.values !== null) {
+            const strs = bias.values.map(String)
+            const w = Math.max(...strs.map(s => s.length))
+            lines.push('', '**bias**', '```', '[' + strs.map(s => s.padStart(w)).join(', ') + ']', '```')
+        }
+        lines.push('')
+    }
+
+    return lines.join('\n')
+}
+
 export async function toStdOut(modelPath: string, options: PeekOptions = {}) {
     const data = await peekLayers(modelPath, options)
-    console.log(JSON.stringify(data, null, 2))
+    if (options.format === 'markdown') {
+        console.log(formatMarkdown(data))
+    } else {
+        console.log(JSON.stringify(data, null, 2))
+    }
 }
