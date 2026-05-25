@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { fileURLToPath } from 'url';
+import { realpathSync } from 'fs';
 import { toStdOut } from './peek.js';
 export { toStdOut, peekLayers } from './peek.js';
 export type { LayerData } from './peek.js';
@@ -9,7 +10,8 @@ export function coreUtility(input: string): string {
   return `Processed: ${input}`;
 }
 
-const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
+const isDirectRun = process.argv[1] != null &&
+  realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
 
 function parseArgs(argv: string[]): Record<string, string> {
   const result: Record<string, string> = {};

@@ -1,4 +1,12 @@
+---
+name: tf-peek
+description: |
+ Describes the layers of model, its weights and bias as compactly as possible. Use this to understand / get context on a model
+---
+
 # Skill: tf-peek
+
+Use this skill to get context on a particular model
 
 Inspects a TensorFlow.js model: loads it and prints all layer weights and biases as JSON to stdout.
 
