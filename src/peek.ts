@@ -20,7 +20,8 @@ function precision2D(matrix: number[][], dp: number) {
 }
 
 export type LayerData = {
-    layer: { name: string },
+    name: string,
+    config: tf.serialization.ConfigDict,
     weights: { shape: number[], values: number[][] },
     bias: { shape: number[], values: number[] },
 }
@@ -29,13 +30,16 @@ function extractLayers(model: tf.LayersModel): LayerData[] {
     const layers: LayerData[] = []
 
     model.layers.forEach((layer) => {
+        const config = layer.getConfig()
+
         if (layer.weights.length === 0) return
 
         const weightsTensor = layer.weights[0].read()
         const biasesTensor = layer.weights[1].read()
 
         layers.push({
-            layer: { name: layer.name },
+            name: layer.name,
+            config,
             weights: {
                 shape: weightsTensor.shape,
                 values: precision2D(weightsTensor.arraySync() as number[][], 2),

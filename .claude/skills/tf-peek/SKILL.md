@@ -38,7 +38,13 @@ JSON array of layers, each with weights and biases:
 ```json
 [
   {
-    "layer": { "name": "dense_Dense1" },
+    "name": "dense_Dense1",
+    "config": {
+      "units": 3,
+      "activation": "softmax",
+      "useBias": true,
+      ...
+    },
     "weights": { "shape": [4, 8], "values": [[...], ...] },
     "bias": { "shape": [8], "values": [...] }
   }
