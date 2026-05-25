@@ -98,3 +98,90 @@ for (const { name, config, weights, bias } of data.layers) {
   // weights.values and bias.values are null when { values: false }
 }
 ```
+
+## Example output
+```bash
+% npx tf-peek --modelPath=example/model-3pl/model.json --format=markdown
+```
+
+### football-predict
+
+|                       |           |
+|-----------------------|-----------|
+| Total params          | 97        |
+| Input shape           | [null, 8] |
+| Output shape          | [null, 3] |
+| Trainable weights     | 6         |
+| Non-trainable weights | 0         |
+
+#### dense_Dense1
+
+units: 6, activation: relu, useBias: true, name: dense_Dense1, trainable: true, dtype: float32
+
+|         | shape  | min   | max  | mean | std  | sparsity |
+|---------|--------|-------|------|------|------|----------|
+| weights | [8, 6] | -0.48 | 0.58 | 0.06 | 0.22 | 0.04     |
+| bias    | [6]    | 0.05  | 0.17 | 0.12 | 0.04 | 0        |
+
+**weights**
+```
+[-0.11,  0.54, -0.01, -0.23,  0.16, -0.05]
+[ 0.31, -0.01,  0.06,  0.45,  0.01, -0.48]
+[-0.23,  0.35, -0.07, -0.01,  0.14,  0.12]
+[ 0.07,  0.55, -0.12, -0.27,  0.18,  0.58]
+[ 0.33,  0.08,  0.05, -0.12,     0, -0.24]
+[-0.29,  0.05, -0.07, -0.29,  0.13,  0.46]
+[ 0.05,  0.03,  0.03,  0.17,  0.01,  0.15]
+[ 0.08,  0.04,  0.03,  0.11, -0.09,  0.17]
+```
+
+**bias**
+```
+[0.14, 0.09, 0.05, 0.12, 0.14, 0.17]
+```
+
+#### dense_Dense2
+
+units: 4, activation: relu, useBias: true, name: dense_Dense2, trainable: true
+
+|         | shape  | min   | max  | mean | std  | sparsity |
+|---------|--------|-------|------|------|------|----------|
+| weights | [6, 4] | -0.29 | 0.81 | 0.09 | 0.28 | 0.08     |
+| bias    | [4]    | -0.04 | 0.26 | 0.1  | 0.12 | 0.25     |
+
+**weights**
+```
+[ 0.14,  0.43, -0.15,  0.02]
+[ 0.56, -0.29,   0.1,  0.81]
+[ 0.06,  0.12,     0,  0.01]
+[-0.27,  0.42,  -0.2, -0.06]
+[ 0.04, -0.12,  0.02,  0.28]
+[-0.12,  -0.2,  0.58, -0.01]
+```
+
+**bias**
+```
+[-0.04,  0.26,  0.17,  0.01]
+```
+
+#### dense_Dense3
+
+units: 3, activation: softmax, useBias: true, name: dense_Dense3, trainable: true
+
+|         | shape  | min   | max  | mean | std  | sparsity |
+|---------|--------|-------|------|------|------|----------|
+| weights | [4, 3] | -0.99 | 0.95 | 0.05 | 0.67 | 0        |
+| bias    | [3]    | -0.21 | 0.23 | 0.01 | 0.18 | 0        |
+
+**weights**
+```
+[ 0.13,  0.77, -0.67]
+[-0.72, -0.24,  0.94]
+[ 0.64, -0.99, -0.44]
+[ 0.95,  0.59, -0.31]
+```
+
+**bias**
+```
+[ 0.01, -0.21,  0.23]
+```
