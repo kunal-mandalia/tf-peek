@@ -47,7 +47,7 @@ npx tf-peek -modelPath=./path/to/model.json
 |------|---------|-------------|
 | `-modelPath` | — | Path to `model.json` (required) |
 | `-values` | `true` | Set to `false` to omit weight and bias arrays. Stats are always included. |
-| `-format` | `json` | Output format: `json` or `markdown` |
+| `-format` | `markdown` | Output format: `markdown` or `json` |
 
 Output:
 
@@ -87,6 +87,8 @@ npx tf-peek -modelPath=./path/to/model.json -values=false
 ```
 
 `values` will be `null` in the output when omitted — `stats` are always computed.
+
+Start with `--format=markdown` to explore and reason about the model. Switch to `--format=json` when you know what you're looking for and want to query or script against the output.
 
 ## Module
 

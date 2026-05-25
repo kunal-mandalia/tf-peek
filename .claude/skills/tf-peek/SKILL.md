@@ -33,22 +33,62 @@ Default: `true`. Set to `false` to omit weight and bias arrays — stats are alw
 
 ### `-format`
 
-Default: `json`.
+Default: `markdown`.
 
+- Use `markdown` to explore and reason about the model — aligned tables and matrices let you scan structure at a glance.
 - Use `json` when you need to extract or filter specific data (e.g. read a single layer's weights, pipe to a script).
-- Use `markdown` when reporting or summarising the model to the user.
 
-### Example
+### Examples
+
+#### stdout: markdown
+
+```bash
+npx tf-peek -modelPath=./models/classifier/model.json -format=markdown
+```
+
+```markdown
+
+# football-predict
+
+|                       |           |
+|-----------------------|-----------|
+| Total params          | 97        |
+| Input shape           | [null, 8] |
+| Output shape          | [null, 3] |
+| Trainable weights     | 6         |
+| Non-trainable weights | 0         |
+
+## dense_Dense1
+
+units: 6, activation: relu, useBias: true, name: dense_Dense1, trainable: true, dtype: float32
+
+|         | shape  | min   | max  | mean | std  | sparsity |
+|---------|--------|-------|------|------|------|----------|
+| weights | [8, 6] | -0.48 | 0.58 | 0.06 | 0.22 | 0.04     |
+| bias    | [6]    | 0.05  | 0.17 | 0.12 | 0.04 | 0        |
+
+**weights**
+[-0.11,  0.54, -0.01, -0.23,  0.16, -0.05]
+[ 0.31, -0.01,  0.06,  0.45,  0.01, -0.48]
+[-0.23,  0.35, -0.07, -0.01,  0.14,  0.12]
+[ 0.07,  0.55, -0.12, -0.27,  0.18,  0.58]
+[ 0.33,  0.08,  0.05, -0.12,     0, -0.24]
+[-0.29,  0.05, -0.07, -0.29,  0.13,  0.46]
+[ 0.05,  0.03,  0.03,  0.17,  0.01,  0.15]
+[ 0.08,  0.04,  0.03,  0.11, -0.09,  0.17]
+
+**bias**
+[0.14, 0.09, 0.05, 0.12, 0.14, 0.17]
+
+```
+
+#### stdout: JSON
+
+JSON object with top-level `model` info and a `layers` array:
 
 ```bash
 npx tf-peek -modelPath=./models/classifier/model.json -format=json
-npx tf-peek -modelPath=./models/classifier/model.json -format=markdown
-npx tf-peek -modelPath=./models/classifier/model.json -format=json -values=false
 ```
-
-### stdout
-
-JSON object with top-level `model` info and a `layers` array:
 
 ```json
 {
