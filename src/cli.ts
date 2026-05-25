@@ -10,8 +10,11 @@ function parseArgs(argv: string[]): Record<string, string> {
   return result;
 }
 
-const { modelPath, values } = parseArgs(process.argv.slice(2));
-const options = values === 'false' ? { values: false } : {};
+const { modelPath, values, format } = parseArgs(process.argv.slice(2));
+const options: import('./peek.js').PeekOptions = {
+  ...(values === 'false' && { values: false }),
+  format: format === 'json' ? 'json' : 'markdown',
+};
 toStdOut(modelPath, options).catch((e: unknown) => {
   process.stderr.write(String(e) + '\n');
   process.exit(1);
