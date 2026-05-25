@@ -1,6 +1,13 @@
 {
   "name": "tf-peek",
-  "version": "0.1.0",
+  "version": "0.9.0",
+  "description": "Inspect TensorFlow.js model architecture and weights from the CLI or programmatically",
+  "keywords": ["tensorflow", "tfjs", "model", "inspect", "weights", "debug", "cli"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kunal-mandalia/tf-peek"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
