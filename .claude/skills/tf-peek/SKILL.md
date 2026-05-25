@@ -29,7 +29,7 @@ Path to the `model.json` file.
 
 ### `-values`
 
-Default: `true`. Set to `false` to omit weight and bias arrays — stats are always computed. Use this for large models where the full weight matrices would overwhelm the context.
+Default: `true`. Set to `false` to omit weight and bias arrays — stats are always computed.
 
 ### `-format`
 
@@ -41,11 +41,9 @@ Default: `json`.
 ### Example
 
 ```bash
-# Full JSON output
-npx tf-peek -modelPath=./models/classifier/model.json
-
-# Markdown summary, stats only (best for large models shared with an agent)
-npx tf-peek -modelPath=./models/classifier/model.json -format=markdown -values=false
+npx tf-peek -modelPath=./models/classifier/model.json -format=json
+npx tf-peek -modelPath=./models/classifier/model.json -format=markdown
+npx tf-peek -modelPath=./models/classifier/model.json -format=json -values=false
 ```
 
 ### stdout
