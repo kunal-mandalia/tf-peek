@@ -7,7 +7,7 @@ Inspect TensorFlow.js model architecture and weights. Surfaces layer configs, we
 Run `tf-peek` against your model and share the output with your assistant to get architectural analysis, flag dead neurons, spot regularisation gaps, and more.
 
 ```bash
-npx tf-peek -modelPath=file://./path/to/model.json
+npx tf-peek -modelPath=./path/to/model.json
 ```
 
 **Claude Code** — add the skill so Claude can run it automatically:
@@ -30,7 +30,7 @@ Things an assistant can surface from the output:
 ## CLI
 
 ```bash
-npx tf-peek -modelPath=file://./path/to/model.json
+npx tf-peek -modelPath=./path/to/model.json
 ```
 
 Output:
@@ -73,7 +73,7 @@ npm install tf-peek
 ```typescript
 import { peekLayers, ModelData } from 'tf-peek';
 
-const data: ModelData = await peekLayers('file://./path/to/model.json');
+const data: ModelData = await peekLayers('./path/to/model.json');
 
 console.log(data.model.totalParams);
 
