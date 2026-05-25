@@ -1,4 +1,5 @@
 # tf-peek
+![tf-peek reveals hidden layers](logo.png)
 
 Inspect TensorFlow.js model architecture and weights. Surfaces layer configs, weight matrices, biases, and computed stats (min, max, mean, std, sparsity) as structured JSON.
 
