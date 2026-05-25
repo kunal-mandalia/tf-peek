@@ -84,11 +84,15 @@ export type ModelInfo = {
     nonTrainableWeights: number,
 }
 
+export type PeekOptions = {
+    values?: boolean,
+}
+
 export type LayerData = {
     name: string,
     config: tf.serialization.ConfigDict,
-    weights: { shape: number[], values: number[][], stats: WeightStats },
-    bias: { shape: number[], values: number[], stats: WeightStats },
+    weights: { shape: number[], values: number[][] | null, stats: WeightStats },
+    bias: { shape: number[], values: number[] | null, stats: WeightStats },
 }
 
 export type ModelData = {
@@ -96,7 +100,8 @@ export type ModelData = {
     layers: LayerData[],
 }
 
-function extractModel(model: tf.LayersModel): ModelData {
+function extractModel(model: tf.LayersModel, options: PeekOptions = {}): ModelData {
+    const includeValues = options.values !== false
     const layers: LayerData[] = []
 
     model.layers.forEach((layer) => {
@@ -114,12 +119,12 @@ function extractModel(model: tf.LayersModel): ModelData {
             config,
             weights: {
                 shape: weightsTensor.shape,
-                values: precision2D(weightsValues, 2),
+                values: includeValues ? precision2D(weightsValues, 2) : null,
                 stats: computeStats(weightsValues.flat(), 2),
             },
             bias: {
                 shape: biasesTensor.shape,
-                values: precision1D(biasValues, 2),
+                values: includeValues ? precision1D(biasValues, 2) : null,
                 stats: computeStats(biasValues, 2),
             },
         })
@@ -138,12 +143,12 @@ function extractModel(model: tf.LayersModel): ModelData {
     }
 }
 
-export async function peekLayers(modelPath: string): Promise<ModelData> {
+export async function peekLayers(modelPath: string, options: PeekOptions = {}): Promise<ModelData> {
     const model = await loadModel(modelPath)
-    return extractModel(model)
+    return extractModel(model, options)
 }
 
-export async function toStdOut(modelPath: string) {
-    const data = await peekLayers(modelPath)
+export async function toStdOut(modelPath: string, options: PeekOptions = {}) {
+    const data = await peekLayers(modelPath, options)
     console.log(JSON.stringify(data, null, 2))
 }

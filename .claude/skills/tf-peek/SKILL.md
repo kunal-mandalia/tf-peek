@@ -20,17 +20,29 @@ npx tf-peek -modelPath=<path>
 
 ### `-modelPath`
 
-Path to the `model.json` file. Must be prefixed with `file://` for local paths.
+Path to the `model.json` file.
 
 ```
--modelPath=file:///absolute/path/to/model.json
--modelPath=file://./relative/path/to/model.json
+-modelPath=./relative/path/to/model.json
+-modelPath=/absolute/path/to/model.json
+```
+
+### `-values`
+
+Default: `true`. Set to `false` to omit weight and bias arrays — stats are always computed. Use this for large models where the full weight matrices would overwhelm the context.
+
+```bash
+npx tf-peek -modelPath=./models/classifier/model.json -values=false
 ```
 
 ### Example
 
 ```bash
-npx tf-peek -modelPath=file://./models/classifier/model.json
+# Full output
+npx tf-peek -modelPath=./models/classifier/model.json
+
+# Stats only (large models)
+npx tf-peek -modelPath=./models/classifier/model.json -values=false
 ```
 
 ### stdout

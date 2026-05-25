@@ -33,6 +33,11 @@ Things an assistant can surface from the output:
 npx tf-peek -modelPath=./path/to/model.json
 ```
 
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-modelPath` | — | Path to `model.json` (required) |
+| `-values` | `true` | Set to `false` to omit weight and bias arrays. Stats are always included. |
+
 Output:
 
 ```json
@@ -64,6 +69,14 @@ Output:
 }
 ```
 
+To focus on metrics only (useful for large models):
+
+```bash
+npx tf-peek -modelPath=./path/to/model.json -values=false
+```
+
+`values` will be `null` in the output when omitted — `stats` are always computed.
+
 ## Module
 
 ```bash
@@ -74,10 +87,13 @@ npm install tf-peek
 import { peekLayers, ModelData } from 'tf-peek';
 
 const data: ModelData = await peekLayers('./path/to/model.json');
+// or, stats only:
+const data: ModelData = await peekLayers('./path/to/model.json', { values: false });
 
 console.log(data.model.totalParams);
 
 for (const { name, config, weights, bias } of data.layers) {
   console.log(name, config.activation, weights.stats, bias.stats);
+  // weights.values and bias.values are null when { values: false }
 }
 ```

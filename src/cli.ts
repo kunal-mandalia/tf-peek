@@ -10,8 +10,9 @@ function parseArgs(argv: string[]): Record<string, string> {
   return result;
 }
 
-const { modelPath } = parseArgs(process.argv.slice(2));
-toStdOut(modelPath).catch((e: unknown) => {
+const { modelPath, values } = parseArgs(process.argv.slice(2));
+const options = values === 'false' ? { values: false } : {};
+toStdOut(modelPath, options).catch((e: unknown) => {
   process.stderr.write(String(e) + '\n');
   process.exit(1);
 });
