@@ -19,11 +19,35 @@ function precision2D(matrix: number[][], dp: number) {
     return output
 }
 
+export type WeightStats = {
+    min: number,
+    max: number,
+    mean: number,
+    std: number,
+    sparsity: number,
+}
+
+function computeStats(values: number[], dp: number): WeightStats {
+    const n = values.length
+    const min = Math.min(...values)
+    const max = Math.max(...values)
+    const mean = values.reduce((s, v) => s + v, 0) / n
+    const std = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / n)
+    const sparsity = values.filter(v => Math.abs(v) < 0.01).length / n
+    return {
+        min: parseFloat(min.toFixed(dp)),
+        max: parseFloat(max.toFixed(dp)),
+        mean: parseFloat(mean.toFixed(dp)),
+        std: parseFloat(std.toFixed(dp)),
+        sparsity: parseFloat(sparsity.toFixed(dp)),
+    }
+}
+
 export type LayerData = {
     name: string,
     config: tf.serialization.ConfigDict,
-    weights: { shape: number[], values: number[][] },
-    bias: { shape: number[], values: number[] },
+    weights: { shape: number[], values: number[][], stats: WeightStats },
+    bias: { shape: number[], values: number[], stats: WeightStats },
 }
 
 function extractLayers(model: tf.LayersModel): LayerData[] {
@@ -36,17 +60,21 @@ function extractLayers(model: tf.LayersModel): LayerData[] {
 
         const weightsTensor = layer.weights[0].read()
         const biasesTensor = layer.weights[1].read()
+        const weightsValues = weightsTensor.arraySync() as number[][]
+        const biasValues = biasesTensor.arraySync() as number[]
 
         layers.push({
             name: layer.name,
             config,
             weights: {
                 shape: weightsTensor.shape,
-                values: precision2D(weightsTensor.arraySync() as number[][], 2),
+                values: precision2D(weightsValues, 2),
+                stats: computeStats(weightsValues.flat(), 2),
             },
             bias: {
                 shape: biasesTensor.shape,
-                values: precision1D(biasesTensor.arraySync() as number[], 2),
+                values: precision1D(biasValues, 2),
+                stats: computeStats(biasValues, 2),
             },
         })
     })
