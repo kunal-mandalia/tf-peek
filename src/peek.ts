@@ -37,11 +37,11 @@ async function loadModel(modelPath: string) {
     return loadLayersModel(fileIOHandler(modelPath))
 }
 
-function precision1D(row: number[], dp: number) {
+export function precision1D(row: number[], dp: number) {
     return row.map(r => parseFloat(r.toFixed(dp)))
 }
 
-function precision2D(matrix: number[][], dp: number) {
+export function precision2D(matrix: number[][], dp: number) {
     let output: number[][] = []
     for (let i=0; i<matrix.length; i++) {
         const row = matrix[i]
@@ -59,7 +59,7 @@ export type WeightStats = {
     sparsity: number,
 }
 
-function computeStats(values: number[], dp: number): WeightStats {
+export function computeStats(values: number[], dp: number): WeightStats {
     const n = values.length
     const min = Math.min(...values)
     const max = Math.max(...values)
@@ -149,7 +149,7 @@ export async function peekLayers(modelPath: string, options: PeekOptions = {}): 
     return extractModel(model, options)
 }
 
-function markdownTable(rows: string[][]): string {
+export function markdownTable(rows: string[][]): string {
     const widths = rows[0].map((_, c) => Math.max(...rows.map(r => r[c].length)))
     const fmt = (row: string[]) => '| ' + row.map((cell, c) => cell.padEnd(widths[c])).join(' | ') + ' |'
     const sep = '|' + widths.map(w => '-'.repeat(w + 2)).join('|') + '|'
@@ -157,7 +157,7 @@ function markdownTable(rows: string[][]): string {
     return [fmt(header), sep, ...body.map(fmt)].join('\n')
 }
 
-function shape(s: (number | null)[]): string {
+export function shape(s: (number | null)[]): string {
     return '[' + s.map(v => v ?? 'null').join(', ') + ']'
 }
 
