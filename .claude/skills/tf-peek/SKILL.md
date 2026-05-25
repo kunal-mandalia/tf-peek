@@ -10,7 +10,7 @@ description: |
 
 Use this skill to get context on a particular model
 
-Inspects a TensorFlow.js model: loads it and prints model info, layer configs, weights, biases, and computed stats as JSON to stdout.
+Inspects a TensorFlow.js model: loads it and prints model info, layer configs, weights, biases, and computed stats to stdout.
 
 ## CLI Usage
 
@@ -33,7 +33,10 @@ Default: `true`. Set to `false` to omit weight and bias arrays — stats are alw
 
 ### `-format`
 
-Default: `json`. Set to `markdown` for human-readable output or when sharing with a coding agent — it is much more token-efficient than JSON for large models.
+Default: `json`.
+
+- Use `json` when you need to extract or filter specific data (e.g. read a single layer's weights, pipe to a script).
+- Use `markdown` when reporting or summarising the model to the user.
 
 ### Example
 
