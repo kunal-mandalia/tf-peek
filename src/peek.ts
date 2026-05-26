@@ -32,6 +32,7 @@ function fileIOHandler(modelPath: string): tf.io.IOHandler {
 }
 
 async function loadModel(modelPath: string) {
+    // Force browser CPU path — avoids requiring @tensorflow/tfjs-node native bindings
     tf.env().set('IS_NODE', false)
     await tf.ready()
     return loadLayersModel(fileIOHandler(modelPath))
@@ -61,8 +62,8 @@ export type WeightStats = {
 
 export function computeStats(values: number[], dp: number): WeightStats {
     const n = values.length
-    const min = Math.min(...values)
-    const max = Math.max(...values)
+    const min = values.reduce((m, v) => v < m ? v : m, Infinity)
+    const max = values.reduce((m, v) => v > m ? v : m, -Infinity)
     const mean = values.reduce((s, v) => s + v, 0) / n
     const std = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / n)
     const sparsity = values.filter(v => Math.abs(v) < 0.01).length / n
@@ -93,7 +94,7 @@ export type LayerData = {
     name: string,
     config: tf.serialization.ConfigDict,
     weights: { shape: number[], values: number[][] | null, stats: WeightStats },
-    bias: { shape: number[], values: number[] | null, stats: WeightStats },
+    bias: { shape: number[], values: number[] | null, stats: WeightStats } | null,
 }
 
 export type ModelData = {
@@ -111,9 +112,18 @@ function extractModel(model: tf.LayersModel, options: PeekOptions = {}): ModelDa
         if (layer.weights.length === 0) return
 
         const weightsTensor = layer.weights[0].read()
-        const biasesTensor = layer.weights[1].read()
         const weightsValues = weightsTensor.arraySync() as number[][]
-        const biasValues = biasesTensor.arraySync() as number[]
+
+        let biasData: LayerData['bias'] = null
+        if (layer.weights.length >= 2) {
+            const biasesTensor = layer.weights[1].read()
+            const biasValues = biasesTensor.arraySync() as number[]
+            biasData = {
+                shape: biasesTensor.shape,
+                values: includeValues ? precision1D(biasValues, 2) : null,
+                stats: computeStats(biasValues, 2),
+            }
+        }
 
         layers.push({
             name: layer.name,
@@ -123,11 +133,7 @@ function extractModel(model: tf.LayersModel, options: PeekOptions = {}): ModelDa
                 values: includeValues ? precision2D(weightsValues, 2) : null,
                 stats: computeStats(weightsValues.flat(), 2),
             },
-            bias: {
-                shape: biasesTensor.shape,
-                values: includeValues ? precision1D(biasValues, 2) : null,
-                stats: computeStats(biasValues, 2),
-            },
+            bias: biasData,
         })
     })
 
@@ -146,7 +152,11 @@ function extractModel(model: tf.LayersModel, options: PeekOptions = {}): ModelDa
 
 export async function peekLayers(modelPath: string, options: PeekOptions = {}): Promise<ModelData> {
     const model = await loadModel(modelPath)
-    return extractModel(model, options)
+    try {
+        return extractModel(model, options)
+    } finally {
+        model.dispose()
+    }
 }
 
 export function markdownTable(rows: string[][]): string {
@@ -185,11 +195,12 @@ function formatMarkdown(data: ModelData): string {
         if (configStr) lines.push(configStr, '')
 
         const s = (x: WeightStats) => [x.min, x.max, x.mean, x.std, x.sparsity].map(String)
-        lines.push(markdownTable([
+        const statsRows: string[][] = [
             ['', 'shape', 'min', 'max', 'mean', 'std', 'sparsity'],
             ['weights', shape(weights.shape), ...s(weights.stats)],
-            ['bias',    shape(bias.shape),    ...s(bias.stats)],
-        ]))
+        ]
+        if (bias !== null) statsRows.push(['bias', shape(bias.shape), ...s(bias.stats)])
+        lines.push(markdownTable(statsRows))
 
         if (weights.values !== null) {
             const strs = weights.values.map(row => row.map(String))
@@ -197,7 +208,7 @@ function formatMarkdown(data: ModelData): string {
             const rows = strs.map(row => '[' + row.map((v, c) => v.padStart(colW[c])).join(', ') + ']')
             lines.push('', '**weights**', '```', ...rows, '```')
         }
-        if (bias.values !== null) {
+        if (bias !== null && bias.values !== null) {
             const strs = bias.values.map(String)
             const w = Math.max(...strs.map(s => s.length))
             lines.push('', '**bias**', '```', '[' + strs.map(s => s.padStart(w)).join(', ') + ']', '```')
